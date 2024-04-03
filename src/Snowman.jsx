@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ENGLISH_WORDS } from "./words";
+import React, {useState} from "react";
+import {ENGLISH_WORDS} from "./words";
 import "./Snowman.css";
 import img0 from "./0.png";
 import img1 from "./1.png";
@@ -9,7 +9,7 @@ import img4 from "./4.png";
 import img5 from "./5.png";
 import img6 from "./6.png";
 
-import { sample, chunk } from "lodash";
+import {sample} from "lodash";
 
 /** Snowman game: plays hangman-style game with a melting snowman.
  *
@@ -34,14 +34,13 @@ function Snowman({
   const [nWrong, setNWrong] = useState(0);
   const [guessedLetters, setGuessedLetters] = useState(() => new Set());
   const [answer, setAnswer] = useState(sample(words));
+  const [winner, setWinner] = useState(false);
 
   /** guessedWord: show current-state of word:
    if guessed letters are {a,p,e}, show "app_e" for "apple"
    */
   function guessedWord() {
-    return answer
-      .split("")
-      .map(ltr => (guessedLetters.has(ltr) ? ltr : "_"));
+    return answer.split("").map((ltr) => (guessedLetters.has(ltr) ? ltr : "_"));
   }
 
   /** handleGuess: handle a guessed letter:
@@ -51,13 +50,17 @@ function Snowman({
   function handleGuess(evt) {
     let ltr = evt.target.value;
 
-    setGuessedLetters(g => {
+    setGuessedLetters((g) => {
       const newGuessed = new Set(g);
       newGuessed.add(ltr);
       return newGuessed;
     });
 
-    setNWrong(n => n + (answer.includes(ltr) ? 0 : 1));
+    const won = !guessedWord().includes("_") ? true : false;
+
+    setNWrong((n) => n + (answer.includes(ltr) ? 0 : 1));
+
+    setWinner(won);
   }
 
   let hideButtons = nWrong >= maxWrong ? "hidden" : "";
@@ -68,10 +71,9 @@ function Snowman({
     setNWrong(0);
   }
 
-
   /** generateButtons: return array of letter buttons to render */
   function generateButtons() {
-    return "abcdefghijklmnopqrstuvwxyz".split("").map(ltr => (
+    return "abcdefghijklmnopqrstuvwxyz".split("").map((ltr) => (
       <button
         key={ltr}
         value={ltr}
@@ -85,15 +87,17 @@ function Snowman({
 
   return (
     <div className="Snowman">
-      <img src={(images)[nWrong]} alt={nWrong} />
+      <img src={images[nWrong]} alt={nWrong} />
       <h3>Number Wrong: {nWrong}</h3>
       <p className="Snowman-word">{guessedWord()}</p>
       <p className={`Snowman-buttons ${hideButtons}`}>{generateButtons()}</p>
       <h2>{nWrong >= maxWrong ? `You Lose! The word was "${answer}".` : ""}</h2>
-      <button onClick={resetGame} className="Snowman-restart">Restart!</button>
+      <h2>{winner ? `You won!` : ""}</h2>
+      <button onClick={resetGame} className="Snowman-restart">
+        Restart!
+      </button>
     </div>
   );
 }
-
 
 export default Snowman;
